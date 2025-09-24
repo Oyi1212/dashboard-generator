@@ -3,506 +3,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Generator - Daten visualisieren in Minuten</title>
+    <title>Dashboard Generator - Excel & CSV visualisieren</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Chart.js - Zuverlässigere Chart-Bibliothek -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Babel für JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- PapaParse für CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
-    <!-- Chart-Bibliothek -->
-    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
-    
-    <!-- CSV-Parser -->
-    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-    
-    <!-- Excel-Reader -->
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
+    <!-- SheetJS für Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
-        .loading { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loading { 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            from { transform: rotate(0deg); } 
+            to { transform: rotate(360deg); } 
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-primary {
+            @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 transform hover:scale-105;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors;
+        }
+        .card {
+            @apply bg-white rounded-xl shadow-lg p-6 fade-in;
+        }
     </style>
 </head>
-<body>
-    <div id="root">
-        <div class="flex items-center justify-center min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Header -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="card mb-6">
             <div class="text-center">
-                <div class="loading w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p>Dashboard wird geladen...</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                    📊 Dashboard Generator
+                </h1>
+                <p class="text-lg text-gray-600 mb-4">
+                    Verwandeln Sie Excel- und CSV-Dateien in professionelle Dashboards
+                </p>
+                <p class="text-sm text-blue-600 font-medium">
+                    ✅ Keine Installation • ✅ Läuft in jedem Browser • ✅ Ihre Daten bleiben privat
+                </p>
+            </div>
+        </div>
+
+        <!-- Upload Bereich -->
+        <div id="uploadSection" class="card mb-6">
+            <div class="text-center">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 hover:border-blue-400 transition-colors cursor-pointer" 
+                     onclick="document.getElementById('fileInput').click()">
+                    
+                    <!-- Upload Icon -->
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Datei auswählen</h3>
+                    <p class="text-gray-500 mb-2">Klicken oder Datei hier hineinziehen</p>
+                    <p class="text-sm text-gray-400">Unterstützt: CSV, Excel (.xlsx, .xls)</p>
+                    
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleFileUpload(event)">
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingDiv" class="hidden mt-4">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="loading w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        <span class="text-blue-600 font-medium">Datei wird analysiert...</span>
+                    </div>
+                </div>
+
+                <!-- Success -->
+                <div id="successDiv" class="hidden mt-4">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-center gap-2 text-green-700">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="font-medium">Datei erfolgreich geladen!</span>
+                        </div>
+                        <p id="fileInfo" class="text-sm text-green-600 mt-1"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Bereich -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Statistiken -->
+            <div class="card mb-6">
+                <h2 class="text-2xl font-bold mb-4">📊 Datenübersicht</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="statsGrid">
+                    <!-- Stats werden hier eingefügt -->
+                </div>
+            </div>
+
+            <!-- Chart-Einstellungen -->
+            <div class="card mb-6">
+                <h2 class="text-2xl font-bold mb-4">🎛️ Diagramm erstellen</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    
+                    <!-- Chart-Typ -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Diagramm-Typ</label>
+                        <div class="grid grid-cols-3 gap-1">
+                            <button onclick="setChartType('bar')" id="btnBar" class="btn-secondary flex items-center justify-center p-3">
+                                📊
+                            </button>
+                            <button onclick="setChartType('line')" id="btnLine" class="btn-secondary flex items-center justify-center p-3">
+                                📈
+                            </button>
+                            <button onclick="setChartType('pie')" id="btnPie" class="btn-secondary flex items-center justify-center p-3">
+                                🥧
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- X-Achse -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">X-Achse (Kategorien)</label>
+                        <select id="xAxisSelect" onchange="updateChart()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <!-- Optionen werden hier eingefügt -->
+                        </select>
+                    </div>
+
+                    <!-- Y-Achse -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Y-Achse (Werte)</label>
+                        <select id="yAxisSelect" onchange="updateChart()" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <!-- Optionen werden hier eingefügt -->
+                        </select>
+                    </div>
+
+                    <!-- Aktionen -->
+                    <div class="flex items-end">
+                        <button onclick="resetApp()" class="w-full btn-secondary">
+                            🔄 Neue Datei
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="card mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold" id="chartTitle">📈 Ihr Dashboard</h2>
+                    <span id="dataPointsCount" class="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"></span>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <canvas id="myChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Datenvorschau -->
+            <div class="card">
+                <h3 class="text-xl font-bold mb-4">🔍 Datenvorschau</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead id="tableHead" class="bg-gray-50">
+                            <!-- Headers werden hier eingefügt -->
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Daten werden hier eingefügt -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-        const { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+    <script>
+        // Globale Variablen
+        let currentData = [];
+        let columns = [];
+        let numericColumns = [];
+        let currentChart = null;
+        let chartType = 'bar';
 
-        // Icons als einfache SVGs
-        const UploadIcon = () => (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-        );
+        // Datei-Upload Handler
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        const BarChartIcon = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-        );
+            // UI Updates
+            document.getElementById('loadingDiv').classList.remove('hidden');
+            document.getElementById('successDiv').classList.add('hidden');
 
-        const LineIcon = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4" />
-            </svg>
-        );
-
-        const CircleIcon = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-        );
-
-        const DashboardGenerator = () => {
-            const [data, setData] = useState([]);
-            const [originalData, setOriginalData] = useState([]);
-            const [columns, setColumns] = useState([]);
-            const [numericColumns, setNumericColumns] = useState([]);
-            const [dateColumns, setDateColumns] = useState([]);
-            const [fileName, setFileName] = useState('');
-            const [loading, setLoading] = useState(false);
-            
-            // Chart-Einstellungen
-            const [chartType, setChartType] = useState('bar');
-            const [xAxis, setXAxis] = useState('');
-            const [yAxis, setYAxis] = useState('');
-            
-            // UI-Zustand
-            const [activeTab, setActiveTab] = useState('upload');
-
-            const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff'];
-
-            // Datentypen automatisch erkennen
-            const analyzeColumns = (data) => {
-                if (!data.length) return { numeric: [], date: [], all: [] };
+            try {
+                let data = [];
                 
-                const sample = data.slice(0, 50);
-                const allCols = Object.keys(sample[0] || {});
-                const numCols = [];
-                const dateCols = [];
-                
-                allCols.forEach(col => {
-                    const values = sample.map(row => row[col]).filter(v => v !== null && v !== undefined && v !== '');
-                    
-                    // Numeric check
-                    const numericCount = values.filter(v => !isNaN(Number(v)) && v !== '').length;
-                    if (numericCount > values.length * 0.7) {
-                        numCols.push(col);
-                    }
-                    
-                    // Date check
-                    const dateCount = values.filter(v => {
-                        const date = new Date(v);
-                        return date instanceof Date && !isNaN(date);
-                    }).length;
-                    if (dateCount > values.length * 0.7) {
-                        dateCols.push(col);
-                    }
-                });
-                
-                return { numeric: numCols, date: dateCols, all: allCols };
-            };
-
-            // Datei verarbeiten
-            const handleFileUpload = async (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                setLoading(true);
-                setFileName(file.name);
-                
-                try {
-                    let parsedData = [];
-                    
-                    if (file.name.endsWith('.csv')) {
-                        const text = await file.text();
-                        const result = Papa.parse(text, {
-                            header: true,
-                            dynamicTyping: true,
-                            skipEmptyLines: true,
-                            delimitersToGuess: [',', '\t', '|', ';']
-                        });
-                        parsedData = result.data;
-                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                        const arrayBuffer = await file.arrayBuffer();
-                        const workbook = XLSX.read(arrayBuffer, { cellDates: true });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        parsedData = XLSX.utils.sheet_to_json(firstSheet);
-                    }
-                    
-                    // Spalten bereinigen
-                    parsedData = parsedData.map(row => {
-                        const cleanRow = {};
-                        Object.keys(row).forEach(key => {
-                            const cleanKey = key.trim();
-                            cleanRow[cleanKey] = row[key];
-                        });
-                        return cleanRow;
+                if (file.name.endsWith('.csv')) {
+                    // CSV parsen
+                    const text = await file.text();
+                    const result = Papa.parse(text, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: true,
+                        delimitersToGuess: [',', ';', '\t', '|']
                     });
-                    
-                    const columnAnalysis = analyzeColumns(parsedData);
-                    
-                    setOriginalData(parsedData);
-                    setData(parsedData);
-                    setColumns(columnAnalysis.all);
-                    setNumericColumns(columnAnalysis.numeric);
-                    setDateColumns(columnAnalysis.date);
-                    
-                    // Auto-select defaults
-                    if (columnAnalysis.all.length > 0) {
-                        setXAxis(columnAnalysis.date[0] || columnAnalysis.all[0]);
-                        setYAxis(columnAnalysis.numeric[0] || columnAnalysis.all[1] || columnAnalysis.all[0]);
-                    }
-                    
-                    setActiveTab('dashboard');
-                } catch (error) {
-                    alert('Fehler beim Laden der Datei: ' + error.message);
-                } finally {
-                    setLoading(false);
+                    data = result.data;
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    // Excel parsen
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { cellDates: true });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    data = XLSX.utils.sheet_to_json(firstSheet);
                 }
-            };
 
-            // Daten für Charts vorbereiten
-            const chartData = useMemo(() => {
-                if (!data.length || !xAxis || !yAxis) return [];
+                // Daten verarbeiten
+                processData(data, file.name);
                 
-                const grouped = data.reduce((acc, row) => {
-                    const key = String(row[xAxis]);
-                    if (!acc[key]) {
-                        acc[key] = { [xAxis]: row[xAxis], [yAxis]: 0, count: 0 };
-                    }
-                    acc[key][yAxis] += Number(row[yAxis]) || 0;
-                    acc[key].count += 1;
-                    return acc;
-                }, {});
+                // UI Updates
+                document.getElementById('loadingDiv').classList.add('hidden');
+                document.getElementById('successDiv').classList.remove('hidden');
+                document.getElementById('fileInfo').textContent = `${file.name} • ${data.length} Zeilen • ${Object.keys(data[0] || {}).length} Spalten`;
                 
-                return Object.values(grouped).slice(0, 15);
-            }, [data, xAxis, yAxis]);
+                // Dashboard anzeigen
+                showDashboard();
 
-            // Chart rendern
-            const renderChart = () => {
-                if (!chartData.length) {
-                    return (
-                        <div className="flex items-center justify-center h-64 text-gray-500">
-                            <p>Keine Daten zum Anzeigen verfügbar</p>
-                        </div>
-                    );
+            } catch (error) {
+                console.error('Fehler:', error);
+                document.getElementById('loadingDiv').classList.add('hidden');
+                alert('Fehler beim Laden der Datei: ' + error.message);
+            }
+        }
+
+        // Daten analysieren und verarbeiten
+        function processData(data, fileName) {
+            currentData = data.slice(0, 1000); // Limit für Performance
+            
+            if (currentData.length === 0) {
+                throw new Error('Keine Daten gefunden');
+            }
+
+            // Spalten analysieren
+            columns = Object.keys(currentData[0]);
+            numericColumns = [];
+
+            columns.forEach(col => {
+                const values = currentData.slice(0, 50).map(row => row[col]);
+                const numericCount = values.filter(v => !isNaN(Number(v)) && v !== null && v !== '').length;
+                
+                if (numericCount > values.length * 0.7) {
+                    numericColumns.push(col);
                 }
+            });
 
-                switch (chartType) {
-                    case 'line':
-                        return (
-                            <ResponsiveContainer width="100%" height={400}>
-                                <LineChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey={xAxis} />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Line type="monotone" dataKey={yAxis} stroke="#8884d8" strokeWidth={2} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        );
-                    
-                    case 'pie':
-                        return (
-                            <ResponsiveContainer width="100%" height={400}>
-                                <PieChart>
-                                    <Pie
-                                        data={chartData.slice(0, 8)}
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={120}
-                                        fill="#8884d8"
-                                        dataKey={yAxis}
-                                        nameKey={xAxis}
-                                        label={({ name, value }) => `${name}: ${value}`}
-                                    >
-                                        {chartData.slice(0, 8).map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        );
-                    
-                    default:
-                        return (
-                            <ResponsiveContainer width="100%" height={400}>
-                                <BarChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey={xAxis} />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey={yAxis} fill="#8884d8" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        );
-                }
-            };
+            console.log('Daten verarbeitet:', {
+                zeilen: currentData.length,
+                spalten: columns.length,
+                numerisch: numericColumns.length
+            });
+        }
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-                    <div className="container mx-auto p-4 max-w-6xl">
-                        {/* Header */}
-                        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                                📊 Dashboard Generator
-                            </h1>
-                            <p className="text-gray-600">
-                                Excel- und CSV-Dateien in interaktive Dashboards verwandeln - in Sekunden!
-                            </p>
-                        </div>
+        // Dashboard anzeigen
+        function showDashboard() {
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            
+            // Statistiken anzeigen
+            showStats();
+            
+            // Dropdown-Menüs füllen
+            fillSelectOptions();
+            
+            // Chart-Typ setzen
+            setChartType('bar');
+            
+            // Datenvorschau
+            showDataPreview();
+            
+            // Zum Dashboard scrollen
+            document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth' });
+        }
 
-                        {/* Navigation */}
-                        <div className="bg-white rounded-xl shadow-lg mb-6">
-                            <div className="flex border-b">
-                                <button
-                                    onClick={() => setActiveTab('upload')}
-                                    className={`px-6 py-3 font-medium flex items-center gap-2 ${activeTab === 'upload' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
-                                >
-                                    <UploadIcon />
-                                    Datei hochladen
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('dashboard')}
-                                    className={`px-6 py-3 font-medium flex items-center gap-2 ${activeTab === 'dashboard' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
-                                    disabled={!data.length}
-                                >
-                                    <BarChartIcon />
-                                    Dashboard
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Upload Tab */}
-                        {activeTab === 'upload' && (
-                            <div className="bg-white rounded-xl shadow-lg p-8">
-                                <div className="text-center">
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 mb-4 hover:border-blue-400 transition-colors">
-                                        <div className="flex justify-center mb-4">
-                                            <UploadIcon />
-                                        </div>
-                                        <label htmlFor="file-upload" className="cursor-pointer">
-                                            <span className="text-xl font-medium text-blue-600 hover:text-blue-500">
-                                                Datei auswählen
-                                            </span>
-                                            <p className="text-gray-500 mt-2">oder hier hineinziehen</p>
-                                            <p className="text-sm text-gray-400 mt-2">CSV, Excel (.xlsx, .xls) - bis 50MB</p>
-                                        </label>
-                                        <input
-                                            id="file-upload"
-                                            type="file"
-                                            className="hidden"
-                                            accept=".csv,.xlsx,.xls"
-                                            onChange={handleFileUpload}
-                                        />
-                                    </div>
-                                    
-                                    {loading && (
-                                        <div className="flex items-center justify-center gap-2 text-blue-600">
-                                            <div className="loading w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                                            Datei wird analysiert...
-                                        </div>
-                                    )}
-                                    
-                                    {fileName && (
-                                        <p className="text-sm text-green-600 mt-2 flex items-center justify-center gap-2">
-                                            ✅ Datei erfolgreich geladen: <span className="font-medium">{fileName}</span>
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Dashboard Tab */}
-                        {activeTab === 'dashboard' && data.length > 0 && (
-                            <div className="space-y-6">
-                                {/* Datenübersicht */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h2 className="text-xl font-bold mb-4">📊 Ihre Daten</h2>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                        <div className="bg-blue-50 p-4 rounded-lg text-center">
-                                            <p className="text-sm text-gray-600">Zeilen</p>
-                                            <p className="text-2xl font-bold text-blue-600">{data.length.toLocaleString()}</p>
-                                        </div>
-                                        <div className="bg-green-50 p-4 rounded-lg text-center">
-                                            <p className="text-sm text-gray-600">Spalten</p>
-                                            <p className="text-2xl font-bold text-green-600">{columns.length}</p>
-                                        </div>
-                                        <div className="bg-purple-50 p-4 rounded-lg text-center">
-                                            <p className="text-sm text-gray-600">Zahlen-Spalten</p>
-                                            <p className="text-2xl font-bold text-purple-600">{numericColumns.length}</p>
-                                        </div>
-                                        <div className="bg-orange-50 p-4 rounded-lg text-center">
-                                            <p className="text-sm text-gray-600">Datei</p>
-                                            <p className="text-lg font-bold text-orange-600">{fileName.split('.').pop().toUpperCase()}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Chart-Einstellungen */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h2 className="text-xl font-bold mb-4">🎛️ Chart-Einstellungen</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                        {/* Chart-Typ */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Diagramm-Typ</label>
-                                            <div className="flex gap-1">
-                                                <button
-                                                    onClick={() => setChartType('bar')}
-                                                    className={`p-3 rounded flex-1 flex items-center justify-center ${chartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                                                    title="Balkendiagramm"
-                                                >
-                                                    <BarChartIcon />
-                                                </button>
-                                                <button
-                                                    onClick={() => setChartType('line')}
-                                                    className={`p-3 rounded flex-1 flex items-center justify-center ${chartType === 'line' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                                                    title="Liniendiagramm"
-                                                >
-                                                    <LineIcon />
-                                                </button>
-                                                <button
-                                                    onClick={() => setChartType('pie')}
-                                                    className={`p-3 rounded flex-1 flex items-center justify-center ${chartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                                                    title="Kreisdiagramm"
-                                                >
-                                                    <CircleIcon />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* X-Achse */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">X-Achse (Kategorien)</label>
-                                            <select 
-                                                value={xAxis} 
-                                                onChange={(e) => setXAxis(e.target.value)}
-                                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                                {columns.map(col => (
-                                                    <option key={col} value={col}>{col}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {/* Y-Achse */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Y-Achse (Werte)</label>
-                                            <select 
-                                                value={yAxis} 
-                                                onChange={(e) => setYAxis(e.target.value)}
-                                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                                {numericColumns.length > 0 ? numericColumns.map(col => (
-                                                    <option key={col} value={col}>{col}</option>
-                                                )) : columns.map(col => (
-                                                    <option key={col} value={col}>{col}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {/* Aktionen */}
-                                        <div className="flex items-end">
-                                            <button
-                                                onClick={() => setActiveTab('upload')}
-                                                className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                                            >
-                                                Neue Datei
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Chart */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-xl font-bold">
-                                            📈 {yAxis} nach {xAxis}
-                                        </h2>
-                                        <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                            {chartData.length} Datenpunkte
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="h-96 w-full">
-                                        {renderChart()}
-                                    </div>
-                                </div>
-
-                                {/* Datenvorschau */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-semibold mb-4">🔍 Datenvorschau (erste 5 Zeilen)</h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm border-collapse">
-                                            <thead>
-                                                <tr className="bg-gray-50">
-                                                    {columns.slice(0, 6).map(col => (
-                                                        <th key={col} className="px-4 py-3 text-left font-medium text-gray-600 border-b border-gray-200">
-                                                            {col}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {data.slice(0, 5).map((row, index) => (
-                                                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                                                        {columns.slice(0, 6).map(col => (
-                                                            <td key={col} className="px-4 py-3 text-gray-800">
-                                                                {String(row[col] || '').slice(0, 30)}
-                                                                {String(row[col] || '').length > 30 && '...'}
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    {columns.length > 6 && (
-                                        <p className="text-sm text-gray-500 mt-2">
-                                            ... und {columns.length - 6} weitere Spalten
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Footer */}
-                        <div className="text-center mt-8 p-6 bg-white rounded-xl shadow-lg">
-                            <p className="text-gray-600 mb-2">
-                                🚀 <strong>Dashboard Generator</strong> - Ihre Daten, professionell visualisiert
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                Keine Installation • Funktioniert in jedem Browser • Ihre Daten bleiben privat
-                            </p>
-                        </div>
-                    </div>
+        // Statistiken anzeigen
+        function showStats() {
+            const statsHtml = `
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Zeilen</p>
+                    <p class="text-2xl font-bold text-blue-600">${currentData.length.toLocaleString()}</p>
                 </div>
-            );
-        };
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Spalten</p>
+                    <p class="text-2xl font-bold text-green-600">${columns.length}</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Zahlen-Spalten</p>
+                    <p class="text-2xl font-bold text-purple-600">${numericColumns.length}</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Chart-Typ</p>
+                    <p class="text-2xl font-bold text-orange-600">${chartType.toUpperCase()}</p>
+                </div>
+            `;
+            document.getElementById('statsGrid').innerHTML = statsHtml;
+        }
 
-        // App rendern
-        ReactDOM.render(<DashboardGenerator />, document.getElementById('root'));
+        // Dropdown-Optionen füllen
+        function fillSelectOptions() {
+            const xSelect = document.getElementById('xAxisSelect');
+            const ySelect = document.getElementById('yAxisSelect');
+            
+            // X-Achse: Alle Spalten
+            xSelect.innerHTML = columns.map(col => 
+                `<option value="${col}">${col}</option>`
+            ).join('');
+            
+            // Y-Achse: Nur numerische Spalten (fallback: alle)
+            const yOptions = numericColumns.length > 0 ? numericColumns : columns;
+            ySelect.innerHTML = yOptions.map(col => 
+                `<option value="${col}">${col}</option>`
+            ).join('');
+
+            // Standard-Auswahl
+            if (numericColumns.length > 0) {
+                ySelect.value = numericColumns[0];
+            }
+        }
+
+        // Chart-Typ setzen
+        function setChartType(type) {
+            chartType = type;
+            
+            // Button-Styles updaten
+            ['btnBar', 'btnLine', 'btnPie'].forEach(id => {
+                document.getElementById(id).className = 'btn-secondary flex items-center justify-center p-3';
+            });
+            document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).className = 'bg-blue-600 text-white flex items-center justify-center p-3 rounded-md';
+            
+            // Stats updaten
+            showStats();
+            
+            // Chart updaten
+            updateChart();
+        }
+
+        // Chart erstellen/updaten
+        function updateChart() {
+            const xCol = document.getElementById('xAxisSelect').value;
+            const yCol = document.getElementById('yAxisSelect').value;
+            
+            if (!xCol || !yCol) return;
+
+            // Daten aggregieren
+            const aggregatedData = aggregateData(xCol, yCol);
+            
+            // Chart-Title updaten
+            document.getElementById('chartTitle').textContent = `📈 ${yCol} nach ${xCol}`;
+            document.getElementById('dataPointsCount').textContent = `${aggregatedData.length} Datenpunkte`;
+
+            // Alten Chart zerstören
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // Neuen Chart erstellen
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            const chartConfig = {
+                type: chartType === 'pie' ? 'pie' : chartType === 'line' ? 'line' : 'bar',
+                data: {
+                    labels: aggregatedData.map(item => String(item.label).slice(0, 20)),
+                    datasets: [{
+                        label: yCol,
+                        data: aggregatedData.map(item => item.value),
+                        backgroundColor: chartType === 'pie' ? 
+                            ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff', '#00ffff', '#ff0000'] :
+                            'rgba(136, 132, 216, 0.8)',
+                        borderColor: 'rgba(136, 132, 216, 1)',
+                        borderWidth: 2,
+                        fill: chartType === 'line' ? false : true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: chartType === 'pie',
+                            position: 'right'
+                        }
+                    },
+                    scales: chartType === 'pie' ? {} : {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: yCol
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: xCol
+                            }
+                        }
+                    }
+                }
+            };
+
+            currentChart = new Chart(ctx, chartConfig);
+        }
+
+        // Daten aggregieren
+        function aggregateData(xCol, yCol) {
+            const grouped = {};
+            
+            currentData.forEach(row => {
+                const key = String(row[xCol] || 'Leer');
+                if (!grouped[key]) {
+                    grouped[key] = { label: key, value: 0, count: 0 };
+                }
+                grouped[key].value += Number(row[yCol]) || 0;
+                grouped[key].count += 1;
+            });
+
+            // Top 15 für bessere Performance
+            return Object.values(grouped)
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 15);
+        }
+
+        // Datenvorschau anzeigen
+        function showDataPreview() {
+            const maxCols = Math.min(columns.length, 6);
+            const maxRows = Math.min(currentData.length, 5);
+            
+            // Header
+            const headerHtml = columns.slice(0, maxCols).map(col => 
+                `<th class="px-4 py-3 text-left font-medium text-gray-600 border-b">${col}</th>`
+            ).join('');
+            document.getElementById('tableHead').innerHTML = `<tr>${headerHtml}</tr>`;
+            
+            // Rows
+            const rowsHtml = currentData.slice(0, maxRows).map(row => {
+                const cellsHtml = columns.slice(0, maxCols).map(col => {
+                    const value = String(row[col] || '').slice(0, 50);
+                    return `<td class="px-4 py-3 text-gray-800 border-b">${value}</td>`;
+                }).join('');
+                return `<tr class="hover:bg-gray-50">${cellsHtml}</tr>`;
+            }).join('');
+            document.getElementById('tableBody').innerHTML = rowsHtml;
+        }
+
+        // App zurücksetzen
+        function resetApp() {
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('successDiv').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+            
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+            
+            currentData = [];
+            columns = [];
+            numericColumns = [];
+            
+            document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Drag & Drop Support
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadSection');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                uploadArea.classList.add('bg-blue-50');
+            }
+
+            function unhighlight(e) {
+                uploadArea.classList.remove('bg-blue-50');
+            }
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                document.getElementById('fileInput').files = files;
+                handleFileUpload({ target: { files: files } });
+            }
+        });
+
+        // Erfolgs-Meldung nach 3 Sekunden
+        setTimeout(() => {
+            console.log('✅ Dashboard Generator geladen und bereit!');
+        }, 1000);
     </script>
 </body>
 </html>
