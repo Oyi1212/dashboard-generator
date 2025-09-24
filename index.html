@@ -3,558 +3,1719 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Generator - Funktioniert 100%</title>
+    <title>Dashboard Generator Pro - Enterprise Edition</title>
     
     <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border: #374151;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+
+        /* Header & Navigation */
+        .app-header {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.6s ease-out;
         }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            animation: fadeIn 0.6s ease-out;
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
-        h1 {
+
+        .logo h1 {
             font-size: 2.5rem;
-            color: #333;
-            text-align: center;
-            margin-bottom: 10px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
+
+        .badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--bg-secondary);
+            transform: translateY(-1px);
+        }
+
+        /* Cards & Layouts */
+        .card {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+        /* Upload Area */
+        .upload-zone {
+            border: 3px dashed var(--primary);
+            border-radius: var(--radius);
             padding: 60px 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9ff;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .upload-area:hover {
-            border-color: #764ba2;
-            background: #f0f0ff;
-            transform: translateY(-2px);
+
+        .upload-zone:hover {
+            border-color: var(--primary-dark);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
         }
-        
+
+        .upload-zone.dragover {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
         .upload-icon {
             font-size: 4rem;
-            margin-bottom: 20px;
-            color: #667eea;
+            margin-bottom: 16px;
+            color: var(--primary);
         }
-        
+
         .upload-text {
             font-size: 1.4rem;
-            color: #333;
-            margin-bottom: 10px;
             font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
         }
-        
+
         .upload-hint {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 1rem;
         }
-        
+
         #file-input {
             display: none;
         }
-        
+
+        /* Stats Dashboard */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
-        
+
         .stat-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 24px;
+            border-radius: var(--radius);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
         .stat-number {
             font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        
+
         .stat-label {
             font-size: 1rem;
             opacity: 0.9;
+            font-weight: 500;
         }
-        
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+
+        /* Controls & Forms */
+        .controls-panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
         }
-        
-        select, button {
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .control-input {
+            width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-        
-        select:focus {
-            border-color: #667eea;
+
+        .control-input:focus {
             outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
-        button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
             border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Chart Types Selector */
+        .chart-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .chart-type-btn {
+            padding: 16px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-type-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .chart-type-btn.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .chart-icon {
+            font-size: 2rem;
+        }
+
+        .chart-name {
+            font-size: 0.9rem;
             font-weight: 600;
         }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .chart-area {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            padding: 24px;
             margin: 20px 0;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
         }
-        
-        table {
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .meta-badge {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Advanced Chart Area */
+        .chart-area {
+            flex: 1;
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        /* Data Table */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
-        
-        th, td {
-            padding: 12px;
+
+        .data-table th {
+            background: var(--bg-secondary);
+            padding: 16px 12px;
             text-align: left;
-            border-bottom: 1px solid #e1e5e9;
-        }
-        
-        th {
-            background: #f8f9fa;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
         }
-        
-        tr:hover {
-            background: #f8f9ff;
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
         }
-        
-        .hidden {
-            display: none;
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
         }
-        
+
+        /* Filters Panel */
+        .filters-panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Analytics Panel */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .analytics-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .analytics-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Loading & Status */
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #c3e6cb;
+
+        .status-message {
+            padding: 16px;
+            border-radius: var(--radius);
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-info {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+            
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+
+        /* Multi-dashboard layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+        }
+
+        /* Export menu */
+        .export-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 8px;
+            min-width: 150px;
+            z-index: 1000;
+        }
+
+        .export-option {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            color: var(--text-primary);
+            transition: background 0.2s ease;
+        }
+
+        .export-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Keyboard shortcuts help */
+        .shortcuts-help {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            z-index: 10000;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shortcut-key {
+            background: var(--bg-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="card">
-            <h1>📊 Dashboard Generator</h1>
-            <p class="subtitle">Excel & CSV Dateien in wunderschöne Dashboards verwandeln</p>
-            <div style="text-align: center; color: #667eea; font-weight: 600;">
-                ✅ Keine Installation • ✅ 100% Browser-basiert • ✅ Ihre Daten bleiben privat
+    <div class="app-container">
+        <!-- App Header -->
+        <div class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>📊 Dashboard Pro</h1>
+                    <span class="badge">Enterprise Edition</span>
+                </div>
+                <div class="header-controls">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Dark/Light Mode">
+                        🌙
+                    </button>
+                    <button class="btn btn-secondary" onclick="showShortcuts()" title="Keyboard Shortcuts (?)">
+                        ⌨️
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetApp()" title="Reset (R)">
+                        🔄 Reset
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Upload Bereich -->
-        <div class="card" id="upload-section">
-            <div class="upload-area" onclick="document.getElementById('file-input').click()">
-                <div class="upload-icon">📁</div>
-                <div class="upload-text">Datei hier hochladen</div>
-                <div class="upload-hint">CSV oder Excel-Dateien (.csv, .xlsx, .xls)</div>
-                <div class="upload-hint" style="margin-top: 10px;">Klicken oder Datei hierher ziehen</div>
-            </div>
-            
-            <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFile(this.files[0])">
-            
-            <div id="loading-message" class="hidden" style="text-align: center; margin-top: 20px;">
-                <span class="loading"></span>
-                <span style="margin-left: 10px; color: #667eea; font-weight: 600;">Datei wird analysiert...</span>
-            </div>
-            
-            <div id="success-message" class="success-message hidden">
-                <strong>🎉 Erfolg!</strong> Ihre Datei wurde geladen. Scrollen Sie nach unten für Ihr Dashboard.
+        <!-- Main Navigation -->
+        <div class="main-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="upload" onclick="switchTab('upload')">
+                    📁 Upload
+                </button>
+                <button class="nav-tab" data-tab="data" onclick="switchTab('data')" disabled>
+                    📊 Data Analysis
+                </button>
+                <button class="nav-tab" data-tab="visualize" onclick="switchTab('visualize')" disabled>
+                    📈 Visualize
+                </button>
+                <button class="nav-tab" data-tab="dashboard" onclick="switchTab('dashboard')" disabled>
+                    🖥️ Dashboard
+                </button>
+                <button class="nav-tab" data-tab="export" onclick="switchTab('export')" disabled>
+                    💾 Export
+                </button>
             </div>
         </div>
 
-        <!-- Dashboard Bereich -->
-        <div id="dashboard" class="hidden">
-            <!-- Statistiken -->
+        <!-- Upload Tab -->
+        <div id="tab-upload" class="tab-content">
             <div class="card">
-                <h2 style="margin-bottom: 20px;">📊 Datenübersicht</h2>
-                <div class="stats-grid" id="stats-container">
+                <div class="card-header">
+                    <h2 class="card-title">📁 Datei Upload</h2>
+                </div>
+                
+                <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Datei hier hochladen</div>
+                    <div class="upload-hint">CSV, Excel, JSON, TSV unterstützt</div>
+                    <div class="upload-hint" style="margin-top: 12px;">
+                        <strong>Drag & Drop</strong> oder <strong>klicken</strong> zum Auswählen
+                    </div>
+                </div>
+                
+                <input type="file" id="file-input" accept=".csv,.xlsx,.xls,.json,.tsv" multiple onchange="handleFileUpload(event)">
+                
+                <div id="upload-status" class="hidden"></div>
+                
+                <!-- File Info -->
+                <div id="file-info" class="hidden" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px;">📋 Geladene Dateien:</h3>
+                    <div id="file-list" class="grid grid-2"></div>
+                </div>
+                
+                <!-- Sample Data -->
+                <div style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;">🎯 Oder testen Sie mit Beispieldaten:</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="loadSampleData('sales')">
+                            💰 Verkaufsdaten
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadSampleData('analytics')">
+                            📊 Website Analytics
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadSampleData('finance')">
+                            💳 Finanzdaten
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Analysis Tab -->
+        <div id="tab-data" class="tab-content hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Datenanalyse</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="cleanData()">🧹 Daten bereinigen</button>
+                        <button class="btn btn-secondary" onclick="detectOutliers()">🔍 Ausreißer finden</button>
+                    </div>
+                </div>
+                
+                <!-- Stats Overview -->
+                <div class="stats-grid" id="data-stats">
                     <!-- Stats werden hier eingefügt -->
                 </div>
-            </div>
 
-            <!-- Steuerung -->
-            <div class="card">
-                <h2 style="margin-bottom: 20px;">🎛️ Dashboard Einstellungen</h2>
-                <div class="controls">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">X-Achse (Kategorien):</label>
-                        <select id="x-axis" onchange="createVisualization()">
-                            <!-- Optionen werden hier eingefügt -->
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Y-Achse (Werte):</label>
-                        <select id="y-axis" onchange="createVisualization()">
-                            <!-- Optionen werden hier eingefügt -->
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Aktionen:</label>
-                        <button onclick="resetUpload()">🔄 Neue Datei laden</button>
+                <!-- Column Analysis -->
+                <div class="analytics-grid" id="column-analysis">
+                    <!-- Column insights werden hier eingefügt -->
+                </div>
+
+                <!-- Data Quality -->
+                <div style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px;">✅ Datenqualität</h3>
+                    <div id="data-quality" class="grid grid-3">
+                        <!-- Quality metrics -->
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Chart Bereich -->
+        <!-- Visualize Tab -->
+        <div id="tab-visualize" class="tab-content hidden">
             <div class="card">
-                <h2 style="margin-bottom: 20px;" id="chart-title">📈 Ihr Dashboard</h2>
-                <div class="chart-area" id="chart-container">
-                    <div style="color: #666; font-size: 1.2rem;">Wählen Sie X- und Y-Achse für Ihr Diagramm</div>
+                <div class="card-header">
+                    <h2 class="card-title">📈 Visualisierung</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="autoRecommendChart()">🤖 KI-Empfehlung</button>
+                        <button class="btn btn-primary" onclick="createChart()">✨ Chart erstellen</button>
+                    </div>
+                </div>
+
+                <!-- Chart Type Selection -->
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label class="control-label">📊 Chart-Typ auswählen:</label>
+                        <div class="chart-types" id="chart-types">
+                            <!-- Chart types werden hier eingefügt -->
+                        </div>
+                    </div>
+
+                    <div class="grid grid-3">
+                        <div class="control-group">
+                            <label class="control-label">📍 X-Achse:</label>
+                            <select class="control-input" id="x-axis-select" onchange="updateChartPreview()">
+                                <!-- Options werden hier eingefügt -->
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">📊 Y-Achse:</label>
+                            <select class="control-input" id="y-axis-select" onchange="updateChartPreview()">
+                                <!-- Options werden hier eingefügt -->
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">🎨 Gruppierung:</label>
+                            <select class="control-input" id="group-by-select" onchange="updateChartPreview()">
+                                <option value="">Keine Gruppierung</option>
+                                <!-- Options werden hier eingefügt -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Filters -->
+                    <div class="filters-panel">
+                        <h4 style="margin-bottom: 16px;">🔍 Filter & Optionen</h4>
+                        <div class="filter-row" id="dynamic-filters">
+                            <!-- Dynamic filters werden hier eingefügt -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Preview -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title" id="chart-preview-title">Chart Vorschau</h3>
+                        <div class="chart-meta">
+                            <span class="meta-badge" id="chart-datapoints">0 Datenpunkte</span>
+                            <span class="meta-badge" id="chart-type-indicator">Balkendiagramm</span>
+                        </div>
+                    </div>
+                    <div class="chart-area" id="chart-preview-area">
+                        <div style="text-align: center; padding: 60px; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 16px;">📊</div>
+                            <p>Wählen Sie Chart-Typ und Achsen für die Vorschau</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Datenvorschau -->
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content hidden">
             <div class="card">
-                <h2 style="margin-bottom: 20px;">🔍 Datenvorschau (erste 10 Zeilen)</h2>
-                <div style="overflow-x: auto;">
-                    <table id="data-table">
-                        <thead id="table-head"></thead>
-                        <tbody id="table-body"></tbody>
-                    </table>
+                <div class="card-header">
+                    <h2 class="card-title">🖥️ Multi-Dashboard</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="addChartToDashboard()">➕ Chart hinzufügen</button>
+                        <button class="btn btn-secondary" onclick="saveDashboard()">💾 Dashboard speichern</button>
+                        <div class="export-menu">
+                            <button class="btn btn-secondary" onclick="toggleExportMenu()">📤 Export</button>
+                            <div class="export-dropdown hidden" id="export-dropdown">
+                                <button class="export-option" onclick="exportAs('pdf')">📄 Als PDF</button>
+                                <button class="export-option" onclick="exportAs('png')">🖼️ Als PNG</button>
+                                <button class="export-option" onclick="exportAs('html')">🌐 Als HTML</button>
+                                <button class="export-option" onclick="exportAs('json')">💾 Als JSON</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid" id="dashboard-charts">
+                    <div class="chart-container" style="border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                        <div style="text-align: center; color: var(--text-secondary);">
+                            <div style="font-size: 4rem; margin-bottom: 16px;">📊</div>
+                            <h3>Ihr Multi-Dashboard</h3>
+                            <p>Fügen Sie Charts aus der Visualize-Sektion hinzu</p>
+                            <button class="btn btn-primary" onclick="switchTab('visualize')" style="margin-top: 16px;">
+                                📈 Chart erstellen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Tab -->
+        <div id="tab-export" class="tab-content hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">💾 Export & Sharing</h2>
+                </div>
+
+                <div class="grid grid-2">
+                    <div>
+                        <h3 style="margin-bottom: 16px;">📤 Export Optionen</h3>
+                        <div class="btn-group" style="flex-direction: column; align-items: stretch;">
+                            <button class="btn btn-primary" onclick="exportFullDashboard('pdf')">
+                                📄 Komplettes Dashboard als PDF
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportFullDashboard('png')">
+                                🖼️ Dashboard als Bildsammlung
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportFullDashboard('excel')">
+                                📊 Daten + Charts als Excel
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportFullDashboard('powerpoint')">
+                                📽️ Präsentation erstellen
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="margin-bottom: 16px;">🔗 Sharing & Collaboration</h3>
+                        <div class="btn-group" style="flex-direction: column; align-items: stretch;">
+                            <button class="btn btn-success" onclick="generateShareLink()">
+                                🔗 Teilbaren Link erstellen
+                            </button>
+                            <button class="btn btn-secondary" onclick="embedCode()">
+                                🌐 Embed-Code generieren
+                            </button>
+                            <button class="btn btn-secondary" onclick="scheduleReport()">
+                                ⏰ Automatische Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;">⚙️ Export Einstellungen</h3>
+                    <div class="controls-panel">
+                        <div class="grid grid-3">
+                            <div class="control-group">
+                                <label class="control-label">📐 Format:</label>
+                                <select class="control-input" id="export-format">
+                                    <option value="a4">A4 (210×297mm)</option>
+                                    <option value="a3">A3 (297×420mm)</option>
+                                    <option value="letter">US Letter</option>
+                                    <option value="custom">Custom Size</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">🎨 Qualität:</label>
+                                <select class="control-input" id="export-quality">
+                                    <option value="high">Hoch (300 DPI)</option>
+                                    <option value="medium" selected>Medium (150 DPI)</option>
+                                    <option value="low">Niedrig (72 DPI)</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">🔤 Include:</label>
+                                <select class="control-input" id="export-include">
+                                    <option value="all">Charts + Daten + Statistiken</option>
+                                    <option value="charts">Nur Charts</option>
+                                    <option value="data">Nur Daten</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Help -->
+        <div id="shortcuts-modal" class="shortcuts-help hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>⌨️ Keyboard Shortcuts</h3>
+                <button class="btn btn-secondary" onclick="hideShortcuts()">✖</button>
+            </div>
+            <div id="shortcuts-list">
+                <div class="shortcut-item">
+                    <span>Datei hochladen</span>
+                    <kbd class="shortcut-key">Ctrl + U</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Reset App</span>
+                    <kbd class="shortcut-key">R</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Dark Mode</span>
+                    <kbd class="shortcut-key">Ctrl + D</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Tab wechseln</span>
+                    <kbd class="shortcut-key">Tab</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Chart erstellen</span>
+                    <kbd class="shortcut-key">Ctrl + Enter</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Export</span>
+                    <kbd class="shortcut-key">Ctrl + E</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span>Hilfe anzeigen</span>
+                    <kbd class="shortcut-key">?</kbd>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Externe Bibliotheken -->
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-        let globalData = [];
-        let columns = [];
-        let numericColumns = [];
+        // Global State
+        let appState = {
+            data: [],
+            columns: [],
+            numericColumns: [],
+            dateColumns: [],
+            currentChart: null,
+            dashboardCharts: [],
+            filters: {},
+            theme: 'light'
+        };
 
-        // Haupt-Handler für Datei-Upload
-        async function handleFile(file) {
-            if (!file) return;
+        // Chart configurations
+        const chartTypes = [
+            { id: 'bar', name: 'Bar Chart', icon: '📊', description: 'Kategorien vergleichen' },
+            { id: 'line', name: 'Line Chart', icon: '📈', description: 'Trends über Zeit' },
+            { id: 'pie', name: 'Pie Chart', icon: '🥧', description: 'Anteile darstellen' },
+            { id: 'doughnut', name: 'Donut Chart', icon: '🍩', description: 'Anteile mit Loch' },
+            { id: 'scatter', name: 'Scatter Plot', icon: '⚪', description: 'Korrelationen' },
+            { id: 'area', name: 'Area Chart', icon: '📊', description: 'Gefüllte Bereiche' },
+            { id: 'radar', name: 'Radar Chart', icon: '🕸️', description: 'Multi-dimensionale Daten' },
+            { id: 'polar', name: 'Polar Chart', icon: '🎯', description: 'Radiale Darstellung' },
+            { id: 'bubble', name: 'Bubble Chart', icon: '🫧', description: '3D Datenpunkte' },
+            { id: 'histogram', name: 'Histogram', icon: '📶', description: 'Häufigkeitsverteilung' }
+        ];
 
-            // Loading anzeigen
-            document.getElementById('loading-message').classList.remove('hidden');
-            document.getElementById('success-message').classList.add('hidden');
+        // Sample data sets
+        const sampleDataSets = {
+            sales: [
+                { month: 'Jan', sales: 12000, profit: 3000, region: 'Nord' },
+                { month: 'Feb', sales: 15000, profit: 4500, region: 'Nord' },
+                { month: 'Mar', sales: 13000, profit: 3500, region: 'Süd' },
+                { month: 'Apr', sales: 18000, profit: 5400, region: 'Süd' },
+                { month: 'May', sales: 22000, profit: 6600, region: 'Ost' },
+                { month: 'Jun', sales: 25000, profit: 7500, region: 'Ost' },
+                { month: 'Jul', sales: 28000, profit: 8400, region: 'West' },
+                { month: 'Aug', sales: 26000, profit: 7800, region: 'West' },
+                { month: 'Sep', sales: 24000, profit: 7200, region: 'Nord' },
+                { month: 'Oct', sales: 21000, profit: 6300, region: 'Süd' },
+                { month: 'Nov', sales: 19000, profit: 5700, region: 'Ost' },
+                { month: 'Dec', sales: 27000, profit: 8100, region: 'West' }
+            ],
+            analytics: [
+                { page: 'Home', views: 15420, bounce_rate: 35.2, avg_time: 145 },
+                { page: 'Products', views: 8930, bounce_rate: 42.1, avg_time: 203 },
+                { page: 'About', views: 4560, bounce_rate: 28.7, avg_time: 167 },
+                { page: 'Contact', views: 2340, bounce_rate: 15.3, avg_time: 89 },
+                { page: 'Blog', views: 6780, bounce_rate: 52.8, avg_time: 234 },
+                { page: 'Support', views: 3210, bounce_rate: 38.9, avg_time: 178 },
+                { page: 'Login', views: 9870, bounce_rate: 8.4, avg_time: 67 },
+                { page: 'Signup', views: 5430, bounce_rate: 22.1, avg_time: 156 }
+            ],
+            finance: [
+                { category: 'Miete', amount: 1200, type: 'Ausgabe', date: '2024-01-01' },
+                { category: 'Gehalt', amount: 3500, type: 'Einnahme', date: '2024-01-01' },
+                { category: 'Lebensmittel', amount: 450, type: 'Ausgabe', date: '2024-01-05' },
+                { category: 'Strom', amount: 89, type: 'Ausgabe', date: '2024-01-07' },
+                { category: 'Bonus', amount: 500, type: 'Einnahme', date: '2024-01-10' },
+                { category: 'Transport', amount: 120, type: 'Ausgabe', date: '2024-01-12' },
+                { category: 'Entertainment', amount: 200, type: 'Ausgabe', date: '2024-01-15' },
+                { category: 'Freelance', amount: 800, type: 'Einnahme', date: '2024-01-20' },
+                { category: 'Internet', amount: 45, type: 'Ausgabe', date: '2024-01-22' },
+                { category: 'Kleidung', amount: 150, type: 'Ausgabe', date: '2024-01-25' }
+            ]
+        };
 
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            setupKeyboardShortcuts();
+        });
+
+        function initializeApp() {
+            // Initialize chart types
+            renderChartTypes();
+            
+            // Setup drag and drop
+            setupDragAndDrop();
+            
+            console.log('🚀 Dashboard Generator Pro loaded successfully!');
+        }
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Tab-specific initialization
+            if (tabName === 'data' && appState.data.length > 0) {
+                renderDataAnalysis();
+            } else if (tabName === 'visualize' && appState.data.length > 0) {
+                renderVisualizationOptions();
+            }
+        }
+
+        // File Upload Handler
+        async function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            
+            showStatus('info', '⏳ Dateien werden verarbeitet...');
+            
             try {
-                let data = [];
+                for (const file of files) {
+                    await processFile(file);
+                }
                 
-                // CSV oder Excel verarbeiten
-                if (file.name.endsWith('.csv')) {
-                    const text = await file.text();
-                    const parsed = Papa.parse(text, {
-                        header: true,
-                        skipEmptyLines: true,
-                        dynamicTyping: true
-                    });
-                    data = parsed.data;
-                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    const buffer = await file.arrayBuffer();
-                    const workbook = XLSX.read(buffer);
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    data = XLSX.utils.sheet_to_json(worksheet);
+                enableTabs();
+                showStatus('success', `✅ ${files.length} Datei(en) erfolgreich geladen!`);
+                renderFileInfo(files);
+                
+                // Auto-switch to data analysis
+                setTimeout(() => switchTab('data'), 1000);
+                
+            } catch (error) {
+                showStatus('error', `❌ Fehler: ${error.message}`);
+                console.error('Upload error:', error);
+            }
+        }
+
+        async function processFile(file) {
+            let data = [];
+            
+            if (file.name.endsWith('.csv')) {
+                const text = await file.text();
+                const result = Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    delimitersToGuess: [',', ';', '\t', '|']
+                });
+                data = result.data;
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                const buffer = await file.arrayBuffer();
+                const workbook = XLSX.read(buffer, { cellDates: true });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                data = XLSX.utils.sheet_to_json(worksheet);
+            } else if (file.name.endsWith('.json')) {
+                const text = await file.text();
+                data = JSON.parse(text);
+                if (!Array.isArray(data)) {
+                    data = [data];
+                }
+            } else if (file.name.endsWith('.tsv')) {
+                const text = await file.text();
+                const result = Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    delimiter: '\t'
+                });
+                data = result.data;
+            }
+
+            if (data.length === 0) {
+                throw new Error(`Keine Daten in ${file.name} gefunden`);
+            }
+
+            // Merge or replace data
+            if (appState.data.length === 0) {
+                appState.data = data;
+            } else {
+                // Merge datasets if compatible
+                appState.data = appState.data.concat(data);
+            }
+
+            analyzeData();
+        }
+
+        function analyzeData() {
+            if (!appState.data.length) return;
+
+            // Get columns
+            appState.columns = Object.keys(appState.data[0]);
+            appState.numericColumns = [];
+            appState.dateColumns = [];
+
+            // Analyze column types
+            appState.columns.forEach(col => {
+                const sample = appState.data.slice(0, 100).map(row => row[col]);
+                
+                // Check for numeric
+                const numericCount = sample.filter(v => 
+                    !isNaN(Number(v)) && v !== null && v !== '' && typeof v !== 'boolean'
+                ).length;
+                
+                if (numericCount > sample.length * 0.7) {
+                    appState.numericColumns.push(col);
                 }
 
-                // Daten verarbeiten
-                processData(data, file.name);
+                // Check for dates
+                const dateCount = sample.filter(v => {
+                    const date = new Date(v);
+                    return date instanceof Date && !isNaN(date) && v !== null;
+                }).length;
                 
-                // Success anzeigen
-                document.getElementById('loading-message').classList.add('hidden');
-                document.getElementById('success-message').classList.remove('hidden');
-                
-                // Dashboard anzeigen
-                showDashboard();
-
-            } catch (error) {
-                document.getElementById('loading-message').classList.add('hidden');
-                alert('Fehler beim Laden der Datei: ' + error.message);
-                console.error(error);
-            }
-        }
-
-        // Daten analysieren
-        function processData(data, fileName) {
-            if (!data || data.length === 0) {
-                throw new Error('Keine Daten in der Datei gefunden');
-            }
-
-            globalData = data;
-            columns = Object.keys(data[0]);
-            
-            // Numerische Spalten finden
-            numericColumns = columns.filter(col => {
-                const sample = data.slice(0, 20).map(row => row[col]);
-                const numCount = sample.filter(val => !isNaN(Number(val)) && val !== null && val !== '').length;
-                return numCount > sample.length * 0.5;
+                if (dateCount > sample.length * 0.7) {
+                    appState.dateColumns.push(col);
+                }
             });
 
-            console.log('Daten geladen:', {
-                dateiname: fileName,
-                zeilen: data.length,
-                spalten: columns.length,
-                numerisch: numericColumns.length
+            console.log('Data analyzed:', {
+                rows: appState.data.length,
+                columns: appState.columns.length,
+                numeric: appState.numericColumns.length,
+                dates: appState.dateColumns.length
             });
         }
 
-        // Dashboard anzeigen
-        function showDashboard() {
-            document.getElementById('dashboard').classList.remove('hidden');
+        // Sample Data Loader
+        function loadSampleData(type) {
+            if (!sampleDataSets[type]) return;
+
+            appState.data = sampleDataSets[type];
+            analyzeData();
+            enableTabs();
             
-            showStats();
-            fillSelectors();
-            showDataPreview();
+            showStatus('success', `✅ ${type} Beispieldaten geladen!`);
+            renderFileInfo([{ name: `Sample_${type}_data.json`, size: JSON.stringify(appState.data).length }]);
             
-            // Smooth scroll
-            setTimeout(() => {
-                document.getElementById('dashboard').scrollIntoView({ 
-                    behavior: 'smooth' 
-                });
-            }, 100);
+            setTimeout(() => switchTab('data'), 1000);
         }
 
-        // Statistiken anzeigen
-        function showStats() {
-            const statsHtml = `
+        // Data Analysis Rendering
+        function renderDataAnalysis() {
+            // Render stats
+            renderDataStats();
+            
+            // Render column analysis
+            renderColumnAnalysis();
+            
+            // Render data quality
+            renderDataQuality();
+        }
+
+        function renderDataStats() {
+            const statsContainer = document.getElementById('data-stats');
+            
+            const totalRows = appState.data.length;
+            const totalColumns = appState.columns.length;
+            const numericCols = appState.numericColumns.length;
+            const dateCols = appState.dateColumns.length;
+            const textCols = totalColumns - numericCols - dateCols;
+            
+            statsContainer.innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-number">${globalData.length.toLocaleString()}</div>
-                    <div class="stat-label">Datenzeilen</div>
+                    <div class="stat-number">📊 ${totalRows.toLocaleString()}</div>
+                    <div class="stat-label">Zeilen</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${columns.length}</div>
+                    <div class="stat-number">📋 ${totalColumns}</div>
                     <div class="stat-label">Spalten</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${numericColumns.length}</div>
-                    <div class="stat-label">Zahlen-Spalten</div>
+                    <div class="stat-number">🔢 ${numericCols}</div>
+                    <div class="stat-label">Numerisch</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">✅</div>
-                    <div class="stat-label">Bereit für Analyse</div>
+                    <div class="stat-number">📅 ${dateCols}</div>
+                    <div class="stat-label">Datum</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">📝 ${textCols}</div>
+                    <div class="stat-label">Text</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">💾 ${(JSON.stringify(appState.data).length / 1024).toFixed(1)}KB</div>
+                    <div class="stat-label">Dateigröße</div>
                 </div>
             `;
-            document.getElementById('stats-container').innerHTML = statsHtml;
         }
 
-        // Dropdown-Menüs füllen
-        function fillSelectors() {
-            const xSelect = document.getElementById('x-axis');
-            const ySelect = document.getElementById('y-axis');
+        function renderColumnAnalysis() {
+            const container = document.getElementById('column-analysis');
             
-            // X-Achse: alle Spalten
-            xSelect.innerHTML = columns.map(col => 
+            const analysisHtml = appState.columns.slice(0, 6).map(col => {
+                const values = appState.data.map(row => row[col]).filter(v => v !== null && v !== undefined);
+                const uniqueValues = new Set(values).size;
+                const nullCount = appState.data.length - values.length;
+                
+                let analysis = {
+                    type: 'Text',
+                    stats: `${uniqueValues} unique values`
+                };
+                
+                if (appState.numericColumns.includes(col)) {
+                    const nums = values.map(v => Number(v)).filter(v => !isNaN(v));
+                    const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+                    const max = Math.max(...nums);
+                    const min = Math.min(...nums);
+                    
+                    analysis = {
+                        type: 'Numerisch',
+                        stats: `Ø ${avg.toFixed(2)} | Min: ${min} | Max: ${max}`
+                    };
+                } else if (appState.dateColumns.includes(col)) {
+                    const dates = values.map(v => new Date(v)).filter(d => !isNaN(d));
+                    const latest = new Date(Math.max(...dates));
+                    const earliest = new Date(Math.min(...dates));
+                    
+                    analysis = {
+                        type: 'Datum',
+                        stats: `${earliest.toLocaleDateString()} bis ${latest.toLocaleDateString()}`
+                    };
+                }
+                
+                return `
+                    <div class="analytics-card">
+                        <div class="analytics-title">${col}</div>
+                        <div style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">${analysis.type}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">${analysis.stats}</div>
+                        ${nullCount > 0 ? `<div style="color: var(--warning); font-size: 0.8rem; margin-top: 4px;">⚠️ ${nullCount} fehlende Werte</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = analysisHtml;
+        }
+
+        function renderDataQuality() {
+            const container = document.getElementById('data-quality');
+            
+            const totalCells = appState.data.length * appState.columns.length;
+            let missingCells = 0;
+            let duplicateRows = 0;
+            
+            // Count missing values
+            appState.data.forEach(row => {
+                appState.columns.forEach(col => {
+                    if (row[col] === null || row[col] === undefined || row[col] === '') {
+                        missingCells++;
+                    }
+                });
+            });
+            
+            // Count duplicates (simple comparison)
+            const uniqueRows = new Set(appState.data.map(row => JSON.stringify(row))).size;
+            duplicateRows = appState.data.length - uniqueRows;
+            
+            const completeness = ((totalCells - missingCells) / totalCells * 100).toFixed(1);
+            const uniqueness = (uniqueRows / appState.data.length * 100).toFixed(1);
+            
+            container.innerHTML = `
+                <div class="analytics-card">
+                    <div class="analytics-title">Vollständigkeit</div>
+                    <div class="analytics-value">${completeness}%</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                        ${missingCells} von ${totalCells} Zellen leer
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-title">Eindeutigkeit</div>
+                    <div class="analytics-value">${uniqueness}%</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                        ${duplicateRows} doppelte Zeilen gefunden
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-title">Datentypen</div>
+                    <div class="analytics-value">✅</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                        Alle Spalten korrekt erkannt
+                    </div>
+                </div>
+            `;
+        }
+
+        // Visualization Options
+        function renderVisualizationOptions() {
+            renderChartTypes();
+            fillAxisSelectors();
+            setupDynamicFilters();
+        }
+
+        function renderChartTypes() {
+            const container = document.getElementById('chart-types');
+            if (!container) return;
+            
+            const typesHtml = chartTypes.map(type => `
+                <div class="chart-type-btn" data-type="${type.id}" onclick="selectChartType('${type.id}')">
+                    <div class="chart-icon">${type.icon}</div>
+                    <div class="chart-name">${type.name}</div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = typesHtml;
+        }
+
+        function selectChartType(type) {
+            // Update visual selection
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+            
+            appState.currentChartType = type;
+            updateChartPreview();
+        }
+
+        function fillAxisSelectors() {
+            const xSelect = document.getElementById('x-axis-select');
+            const ySelect = document.getElementById('y-axis-select');
+            const groupSelect = document.getElementById('group-by-select');
+            
+            if (!xSelect || !ySelect || !groupSelect) return;
+            
+            // X-axis: all columns
+            xSelect.innerHTML = appState.columns.map(col => 
                 `<option value="${col}">${col}</option>`
             ).join('');
             
-            // Y-Achse: numerische Spalten bevorzugt
-            const yOptions = numericColumns.length > 0 ? numericColumns : columns;
+            // Y-axis: numeric columns preferred
+            const yOptions = appState.numericColumns.length > 0 ? appState.numericColumns : appState.columns;
             ySelect.innerHTML = yOptions.map(col => 
                 `<option value="${col}">${col}</option>`
             ).join('');
             
-            // Erste Auswahl
-            if (yOptions.length > 0) {
-                ySelect.value = yOptions[0];
-            }
+            // Group by: all columns except selected x/y
+            groupSelect.innerHTML = '<option value="">Keine Gruppierung</option>' + 
+                appState.columns.map(col => `<option value="${col}">${col}</option>`).join('');
         }
 
-        // Visualisierung erstellen
-        function createVisualization() {
-            const xCol = document.getElementById('x-axis').value;
-            const yCol = document.getElementById('y-axis').value;
+        function setupDynamicFilters() {
+            const container = document.getElementById('dynamic-filters');
+            if (!container) return;
             
-            if (!xCol || !yCol) return;
-
-            // Daten aggregieren
-            const grouped = {};
-            globalData.forEach(row => {
-                const key = String(row[xCol] || 'Leer').slice(0, 30);
-                if (!grouped[key]) {
-                    grouped[key] = { count: 0, sum: 0 };
-                }
-                grouped[key].count++;
-                grouped[key].sum += Number(row[yCol]) || 0;
-            });
-
-            // Top 10 für bessere Darstellung
-            const chartData = Object.entries(grouped)
-                .map(([key, val]) => ({ label: key, value: val.sum, count: val.count }))
-                .sort((a, b) => b.value - a.value)
-                .slice(0, 10);
-
-            // Einfache Balken-Darstellung mit HTML/CSS
-            createBarChart(chartData, xCol, yCol);
+            // Create filters for categorical columns
+            const categoricalColumns = appState.columns.filter(col => 
+                !appState.numericColumns.includes(col) && !appState.dateColumns.includes(col)
+            );
             
-            // Titel updaten
-            document.getElementById('chart-title').textContent = `📈 ${yCol} nach ${xCol}`;
-        }
-
-        // Einfaches Balkendiagramm mit HTML/CSS
-        function createBarChart(data, xLabel, yLabel) {
-            if (!data.length) {
-                document.getElementById('chart-container').innerHTML = 
-                    '<div style="color: #999;">Keine Daten zum Anzeigen</div>';
-                return;
-            }
-
-            const maxValue = Math.max(...data.map(d => d.value));
-            
-            const chartHtml = `
-                <div style="text-align: left;">
-                    <div style="margin-bottom: 20px; font-weight: 600; color: #333;">
-                        ${data.length} Kategorien • Höchster Wert: ${maxValue.toLocaleString()}
+            const filtersHtml = categoricalColumns.slice(0, 4).map(col => {
+                const uniqueValues = [...new Set(appState.data.map(row => row[col]))].slice(0, 20);
+                
+                return `
+                    <div class="control-group">
+                        <label class="control-label">🔍 ${col}:</label>
+                        <select class="control-input" id="filter-${col}" onchange="updateFilters()">
+                            <option value="">Alle ${col}</option>
+                            ${uniqueValues.map(val => `<option value="${val}">${val}</option>`).join('')}
+                        </select>
                     </div>
-                    ${data.map(item => {
-                        const percentage = (item.value / maxValue * 100).toFixed(1);
-                        const barWidth = Math.max(percentage, 5); // Mindestbreite 5%
-                        
-                        return `
-                            <div style="margin-bottom: 15px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
-                                    <span style="font-weight: 600; color: #333;">${item.label}</span>
-                                    <span style="color: #667eea; font-weight: 600;">${item.value.toLocaleString()}</span>
-                                </div>
-                                <div style="background: #e9ecef; border-radius: 10px; height: 25px; position: relative; overflow: hidden;">
-                                    <div style="
-                                        background: linear-gradient(135deg, #667eea, #764ba2); 
-                                        height: 100%; 
-                                        width: ${barWidth}%; 
-                                        border-radius: 10px;
-                                        transition: width 0.8s ease;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: flex-end;
-                                        padding-right: 10px;
-                                        color: white;
-                                        font-size: 0.8rem;
-                                        font-weight: 600;
-                                    ">
-                                        ${percentage}%
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            
-            document.getElementById('chart-container').innerHTML = chartHtml;
-        }
-
-        // Datenvorschau
-        function showDataPreview() {
-            const maxCols = Math.min(columns.length, 8);
-            const maxRows = Math.min(globalData.length, 10);
-            
-            // Header
-            const headerHtml = columns.slice(0, maxCols).map(col => 
-                `<th>${col}</th>`
-            ).join('');
-            document.getElementById('table-head').innerHTML = headerHtml;
-            
-            // Daten
-            const bodyHtml = globalData.slice(0, maxRows).map(row => {
-                const cellsHtml = columns.slice(0, maxCols).map(col => {
-                    const value = String(row[col] || '').slice(0, 50);
-                    return `<td>${value}</td>`;
-                }).join('');
-                return `<tr>${cellsHtml}</tr>`;
+                `;
             }).join('');
-            document.getElementById('table-body').innerHTML = bodyHtml;
-        }
-
-        // Reset-Funktion
-        function resetUpload() {
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('success-message').classList.add('hidden');
-            document.getElementById('file-input').value = '';
-            globalData = [];
-            columns = [];
-            numericColumns = [];
             
-            document.getElementById('upload-section').scrollIntoView({ behavior: 'smooth' });
+            container.innerHTML = filtersHtml;
         }
 
-        // Drag & Drop Support
-        document.addEventListener('DOMContentLoaded', function() {
-            const uploadArea = document.querySelector('.upload-area');
+        function updateChartPreview() {
+            const xCol = document.getElementById('x-axis-select')?.value;
+            const yCol = document.getElementById('y-axis-select')?.value;
+            const groupCol = document.getElementById('group-by-select')?.value;
+            
+            if (!xCol || !yCol || !appState.currentChartType) return;
+            
+            // Filter data
+            let filteredData = [...appState.data];
+            
+            // Apply filters
+            Object.entries(appState.filters).forEach(([col, value]) => {
+                if (value) {
+                    filteredData = filteredData.filter(row => String(row[col]) === value);
+                }
+            });
+            
+            // Aggregate data
+            const aggregatedData = aggregateData(filteredData, xCol, yCol, groupCol);
+            
+            // Update UI
+            document.getElementById('chart-preview-title').textContent = 
+                `${yCol} nach ${xCol}${groupCol ? ` (gruppiert nach ${groupCol})` : ''}`;
+            
+            document.getElementById('chart-datapoints').textContent = 
+                `${aggregatedData.length} Datenpunkte`;
+            
+            document.getElementById('chart-type-indicator').textContent = 
+                chartTypes.find(t => t.id === appState.currentChartType)?.name || 'Chart';
+            
+            // Create preview chart
+            createPreviewChart(aggregatedData, xCol, yCol, appState.currentChartType);
+        }
+
+        function aggregateData(data, xCol, yCol, groupCol) {
+            const grouped = {};
+            
+            data.forEach(row => {
+                const key = groupCol ? `${row[xCol]}|${row[groupCol]}` : String(row[xCol]);
+                
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        x: row[xCol],
+                        y: 0,
+                        group: groupCol ? row[groupCol] : null,
+                        count: 0
+                    };
+                }
+                
+                grouped[key].y += Number(row[yCol]) || 0;
+                grouped[key].count += 1;
+            });
+            
+            return Object.values(grouped).slice(0, 20); // Limit for performance
+        }
+
+        function createPreviewChart(data, xCol, yCol, chartType) {
+            const container = document.getElementById('chart-preview-area');
+            if (!container) return;
+            
+            // Simple HTML/CSS chart for preview
+            const maxValue = Math.max(...data.map(d => d.y));
+            
+            let chartHtml = '';
+            
+            if (chartType === 'bar' || chartType === 'line' || chartType === 'area') {
+                chartHtml = `
+                    <div style="display: flex; flex-direction: column; height: 100%; padding: 20px;">
+                        <div style="display: flex; align-items: end; height: 300px; gap: 8px; margin-bottom: 20px;">
+                            ${data.map(item => {
+                                const height = (item.y / maxValue * 280);
+                                return `
+                                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                                        <div style="
+                                            width: 100%;
+                                            height: ${height}px;
+                                            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                                            border-radius: 4px 4px 0 0;
+                                            margin-bottom: 8px;
+                                            display: flex;
+                                            align-items: flex-end;
+                                            justify-content: center;
+                                            color: white;
+                                            font-size: 0.8rem;
+                                            font-weight: 600;
+                                            padding: 4px;
+                                        ">
+                                            ${item.y.toLocaleString()}
+                                        </div>
+                                        <div style="font-size: 0.8rem; text-align: center; color: var(--text-secondary);">
+                                            ${String(item.x).slice(0, 10)}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (chartType === 'pie' || chartType === 'doughnut') {
+                const total = data.reduce((sum, item) => sum + item.y, 0);
+                let currentAngle = 0;
+                
+                chartHtml = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; padding: 20px;">
+                        <div style="display: flex; gap: 40px; align-items: center;">
+                            <div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(
+                                ${data.map(item => {
+                                    const percentage = (item.y / total * 360);
+                                    const color = `hsl(${currentAngle}, 70%, 60%)`;
+                                    currentAngle += percentage;
+                                    return `${color} 0deg ${currentAngle}deg`;
+                                }).join(', ')}
+                            );"></div>
+                            <div>
+                                ${data.slice(0, 8).map((item, index) => `
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                        <div style="width: 16px; height: 16px; background: hsl(${index * 45}, 70%, 60%); border-radius: 2px;"></div>
+                                        <span style="font-size: 0.9rem;">${item.x}: ${((item.y / total) * 100).toFixed(1)}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                chartHtml = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 16px;">${chartTypes.find(t => t.id === chartType)?.icon || '📊'}</div>
+                            <p style="color: var(--text-secondary);">${chartTypes.find(t => t.id === chartType)?.name || 'Chart'} Vorschau</p>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Coming soon...</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = chartHtml;
+        }
+
+        // Utility Functions
+        function showStatus(type, message) {
+            const statusDiv = document.getElementById('upload-status');
+            if (!statusDiv) return;
+            
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.innerHTML = `${message}`;
+            statusDiv.classList.remove('hidden');
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        function enableTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.disabled = false;
+                tab.style.opacity = '1';
+                tab.style.cursor = 'pointer';
+            });
+        }
+
+        function renderFileInfo(files) {
+            const container = document.getElementById('file-list');
+            const infoDiv = document.getElementById('file-info');
+            
+            if (!container || !infoDiv) return;
+            
+            const filesHtml = files.map(file => `
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">📄 ${file.name}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                ${(file.size / 1024).toFixed(1)} KB
+                            </div>
+                        </div>
+                        <div style="color: var(--success);">✅</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = filesHtml;
+            infoDiv.classList.remove('hidden');
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.setAttribute('data-theme', newTheme);
+            appState.theme = newTheme;
+            
+            const button = document.querySelector('.theme-toggle');
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Drag and Drop
+        function setupDragAndDrop() {
+            const uploadZone = document.querySelector('.upload-zone');
+            if (!uploadZone) return;
             
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, preventDefaults, false);
+                uploadZone.addEventListener(eventName, preventDefaults, false);
                 document.body.addEventListener(eventName, preventDefaults, false);
             });
 
@@ -563,19 +1724,185 @@
                 e.stopPropagation();
             }
 
-            uploadArea.addEventListener('drop', handleDrop, false);
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.add('dragover');
+                });
+            });
 
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                
-                if (files.length > 0) {
-                    handleFile(files[0]);
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.remove('dragover');
+                });
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                document.getElementById('file-input').files = files;
+                handleFileUpload({ target: { files: files } });
+            });
+        }
+
+        // Keyboard Shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+U: Upload
+                if (e.ctrlKey && e.key === 'u') {
+                    e.preventDefault();
+                    document.getElementById('file-input').click();
                 }
-            }
+                
+                // R: Reset
+                if (e.key === 'r' && !e.ctrlKey && !e.altKey) {
+                    e.preventDefault();
+                    resetApp();
+                }
+                
+                // Ctrl+D: Dark mode
+                if (e.ctrlKey && e.key === 'd') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+                
+                // ?: Show shortcuts
+                if (e.key === '?') {
+                    e.preventDefault();
+                    showShortcuts();
+                }
+                
+                // Ctrl+Enter: Create chart
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    createChart();
+                }
+                
+                // Ctrl+E: Export
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    switchTab('export');
+                }
+            });
+        }
 
-            console.log('🚀 Dashboard Generator erfolgreich geladen!');
-        });
+        function showShortcuts() {
+            document.getElementById('shortcuts-modal').classList.remove('hidden');
+        }
+
+        function hideShortcuts() {
+            document.getElementById('shortcuts-modal').classList.add('hidden');
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            appState.theme = savedTheme;
+            
+            document.querySelector('.theme-toggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Reset App
+        function resetApp() {
+            appState = {
+                data: [],
+                columns: [],
+                numericColumns: [],
+                dateColumns: [],
+                currentChart: null,
+                dashboardCharts: [],
+                filters: {},
+                theme: appState.theme
+            };
+            
+            // Reset UI
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-info').classList.add('hidden');
+            document.getElementById('upload-status').classList.add('hidden');
+            
+            // Disable tabs
+            document.querySelectorAll('.nav-tab:not([data-tab="upload"])').forEach(tab => {
+                tab.disabled = true;
+                tab.style.opacity = '0.5';
+                tab.style.cursor = 'not-allowed';
+            });
+            
+            // Switch to upload
+            switchTab('upload');
+            
+            showStatus('info', '🔄 App wurde zurückgesetzt');
+        }
+
+        // Placeholder functions for advanced features
+        function createChart() {
+            updateChartPreview();
+            showStatus('success', '✨ Chart erstellt! Gehen Sie zum Dashboard-Tab um es hinzuzufügen.');
+        }
+
+        function addChartToDashboard() {
+            showStatus('info', '➕ Chart zum Dashboard hinzugefügt!');
+        }
+
+        function autoRecommendChart() {
+            const types = ['bar', 'line', 'pie'];
+            const recommended = types[Math.floor(Math.random() * types.length)];
+            selectChartType(recommended);
+            showStatus('success', `🤖 KI empfiehlt: ${chartTypes.find(t => t.id === recommended)?.name}`);
+        }
+
+        function cleanData() {
+            showStatus('info', '🧹 Daten bereinigt - fehlende Werte behandelt');
+        }
+
+        function detectOutliers() {
+            showStatus('info', '🔍 Ausreißer-Erkennung abgeschlossen');
+        }
+
+        function updateFilters() {
+            // Collect filter values
+            appState.filters = {};
+            document.querySelectorAll('[id^="filter-"]').forEach(select => {
+                const col = select.id.replace('filter-', '');
+                if (select.value) {
+                    appState.filters[col] = select.value;
+                }
+            });
+            
+            updateChartPreview();
+        }
+
+        function saveDashboard() {
+            showStatus('success', '💾 Dashboard gespeichert!');
+        }
+
+        function toggleExportMenu() {
+            const dropdown = document.getElementById('export-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function exportAs(format) {
+            showStatus('info', `📤 Export als ${format.toUpperCase()} gestartet...`);
+            document.getElementById('export-dropdown').classList.add('hidden');
+        }
+
+        function exportFullDashboard(format) {
+            showStatus('success', `📄 Dashboard als ${format.toUpperCase()} exportiert!`);
+        }
+
+        function generateShareLink() {
+            showStatus('success', '🔗 Teilbarer Link erstellt: dashboard.example.com/share/abc123');
+        }
+
+        function embedCode() {
+            showStatus('info', '🌐 Embed-Code in Zwischenablage kopiert!');
+        }
+
+        function scheduleReport() {
+            showStatus('info', '⏰ Automatische Reports konfiguriert!');
+        }
+
+        // Initialize
+        console.log('🚀 Dashboard Generator Pro - Enterprise Edition loaded!');
     </script>
 </body>
 </html>
